@@ -1,0 +1,77 @@
+
+УСЛОВИЕ ЗАДАЧИ:
+== Получен Quest 7. Добавить программу src/matrix_arithmetic.c, которая производит одну из трех операций:
+1 - суммирование двух матриц, 2 - умножение или 3 - транспонирование. Перед вводом размеров и матриц
+вводится код соответствующей операции. Матрицы, как и ранее, целочисленные. В случае любой ошибки выводить «n/a». ==
+
+
+
+
+ВХОДНЫЕ ДАННЫЕ :
+
+1
+2 2
+4 3
+9 0
+2 2
+1 1
+2 2
+
+
+ВЫХОДНЫЕ ДАННЫЕ ПРИ ТАКИХ ВВОДНЫХ ДАННЫХ ДОЛЖНЫ БЫТЬ ТАКИМИ:
+
+5 4
+11 2
+
+
+
+
+2. Входные данные :
+
+2
+2 3
+4 3 1
+9 0 2
+3 1
+1
+2
+3
+
+Выходные данные :
+13
+15
+
+
+
+
+3. Входные данные :
+
+3
+2 2
+4 3
+9 0
+
+
+Выходные данные :
+4 9
+3 0
+ИСХОДНЫЙ КОД КОТОРЫЙ НУЖНО ИЗМЕНИТЬ:
+
+int input(int **matrix, int *n, int *m);
+void output(int **matrix, int n, int m);
+int sum(int **matrix_first, int n_first, int m_first, int **matrix_second,
+    int n_second, int m_second, int **matrix_result, int *n_result, int *m_result);
+int transpose(int **matrix, int n, int m);
+int mul(int **matrix_first, int n_first, int m_first, int **matrix_second,
+    int n_second, int m_second, int **matrix_result, int *n_result, int *m_result);
+
+int main()
+{
+
+}
+
+
+
+
+
+Я ДУМАЮ ТЫ ЛОГИКУ ПОЙМЕШЬЮ
