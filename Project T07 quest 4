@@ -1,0 +1,285 @@
+ 
+УСЛОВИЕ ЗАДАЧИ :
+
+== Получен Quest 4. Добавить программу src/matrix_extended.c, которая расширяет функционал
+программы src/matrix.c. Необходимо вычислить максимальные элементы матрицы в каждой ее строке и
+минимальные элементы в каждом ее столбце и вывести эти значения в конце после вывода матрицы в виде
+двух массивов (массив максимальных элементов в каждой строке и массив минимальных
+элементов в каждом столбце). Первым числом вводится номер способа выделения памяти. Также обрати внимание: никаких символов переноса после последней строки(!)==
+
+
+ВХОДНЫЕ ДАННЫЕ :
+2
+3 3
+4 3 1
+9 0 55
+-4 7 111
+
+ПРИ ТАКИХ ВХОДНЫХ ДАННЫХ ВЫВОД ДОЛЖЕН БЫТЬ ТАКИМ:
+4 3 1
+9 0 55
+-4 7 111
+4 55 111
+-4 0 1
+
+Я ДУМАЮ ТЫ ПОЙМЕШ ЛОГИКУ.
+
+
+РЕШЕНИЕ ЗАДАЧИ:
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 100
+
+// Function prototypes
+int input_select_method(int *method);
+int input_size(int *columns, int *rows);
+int dynamic_input_and_output_double_pointer(int input_size_columns, int input_size_rows);
+int dynamic_input_and_output_single_pointer(int input_size_columns, int input_size_rows);
+int dynamic_input_and_output_array_of_pointers(int input_size_columns, int input_size_rows);
+void free_dynamic_matrix(int **matrix, int rows);
+void calculate_max_min(int **matrix, int rows, int columns);
+
+int main() {
+    int input_select, input_size_columns, input_size_rows;
+
+    input_select_method(&input_select);
+    input_size(&input_size_columns, &input_size_rows);
+
+    if (input_select == 2) {
+        dynamic_input_and_output_double_pointer(input_size_columns, input_size_rows);
+    } else if (input_select == 3) {
+        dynamic_input_and_output_single_pointer(input_size_columns, input_size_rows);
+    } else if (input_select == 4) {
+        dynamic_input_and_output_array_of_pointers(input_size_columns, input_size_rows);
+    } else {
+        printf("n/a\n");
+    }
+
+    return 0;
+}
+
+int input_select_method(int *method) {
+    if (scanf("%d", method) != 1) {
+        printf("n/a\n");
+        exit(0);
+    }
+    return *method;
+}
+
+int input_size(int *input_size_columns, int *input_size_rows) {
+    if (scanf("%d %d", input_size_rows, input_size_columns) != 2 || *input_size_rows < 1 || *input_size_rows > MAX_SIZE || *input_size_columns < 1 || *input_size_columns > MAX_SIZE) {
+        printf("n/a\n");
+        exit(0);
+    }
+    return 0;
+}
+
+int dynamic_input_and_output_double_pointer(int input_size_columns, int input_size_rows) {
+    int **matrix = malloc(input_size_rows * sizeof(int*));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    // Allocate memory for each row
+    for (int i = 0; i < input_size_rows; i++) {
+        matrix[i] = malloc(input_size_columns * sizeof(int));
+        if (matrix[i] == NULL) {
+            free_dynamic_matrix(matrix, i);
+            printf("n/a\n");
+            return -1;
+        }
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row][column]) != 1) {
+                free_dynamic_matrix(matrix, input_size_rows);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row][column]);
+        }
+        printf("\n");
+    }
+
+    // Calculate and print max elements in rows and min elements in columns
+    calculate_max_min(matrix, input_size_rows, input_size_columns);
+
+    free_dynamic_matrix(matrix, input_size_rows);
+    return 0;
+}
+
+int dynamic_input_and_output_single_pointer(int input_size_columns, int input_size_rows) {
+    int *matrix = malloc(input_size_rows * input_size_columns * sizeof(int));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row * input_size_columns + column]) != 1) {
+                free(matrix);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row * input_size_columns + column]);
+        }
+        printf("\n");
+    }
+
+    // Calculate and print max elements in rows and min elements in columns
+    int *max_row = malloc(input_size_rows * sizeof(int));
+    int *min_column = malloc(input_size_columns * sizeof(int));
+    if (max_row == NULL || min_column == NULL) {
+        free(matrix);
+        printf("n/a\n");
+        return -1;
+    }
+
+    for (int j = 0; j < input_size_columns; j++) {
+        min_column[j] = matrix[j]; // Initialize min_column with first row elements
+    }
+
+    // Calculate max in rows and min in columns
+    for (int i = 0; i < input_size_rows; i++) {
+        max_row[i] = matrix[i * input_size_columns];
+        for (int j = 0; j < input_size_columns; j++) {
+            // Max in row i
+            if (matrix[i * input_size_columns + j] > max_row[i]) {
+                max_row[i] = matrix[i * input_size_columns + j];
+            }
+            // Min in column j
+            if (i == 0 || matrix[i * input_size_columns + j] < min_column[j]) {
+                min_column[j] = matrix[i * input_size_columns + j];
+            }
+        }
+    }
+
+    // Print max and min arrays
+    for (int i = 0; i < input_size_rows; i++) {
+        if (i > 0) printf(" ");
+        printf("%d", max_row[i]);
+    }
+    printf("\n");
+
+    for (int j = 0; j < input_size_columns; j++) {
+        if (j > 0) printf(" ");
+        printf("%d", min_column[j]);
+    }
+    printf("\n");
+
+    // Free allocated memory
+    free(max_row);
+    free(min_column);
+    free(matrix);
+    return 0;
+}
+
+int dynamic_input_and_output_array_of_pointers(int input_size_columns, int input_size_rows) {
+    int **matrix = malloc(input_size_rows * sizeof(int*));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    for (int i = 0; i < input_size_rows; i++) {
+        matrix[i] = malloc(input_size_columns * sizeof(int));
+        if (matrix[i] == NULL) {
+            free_dynamic_matrix(matrix, i);
+            printf("n/a\n");
+            return -1;
+        }
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row][column]) != 1) {
+                free_dynamic_matrix(matrix, input_size_rows);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row][column]);
+        }
+        printf("\n");
+    }
+
+    // Calculate and print max elements in rows and min elements in columns
+    calculate_max_min(matrix, input_size_rows, input_size_columns);
+
+    free_dynamic_matrix(matrix, input_size_rows);
+    return 0;
+}
+
+void calculate_max_min(int **matrix, int rows, int columns) {
+    int *max_row = malloc(rows * sizeof(int));
+    int *min_column = malloc(columns * sizeof(int));
+    if (max_row == NULL || min_column == NULL) {
+        printf("n/a\n");
+        return;
+    }
+
+    // Calculate max in rows and min in columns
+    for (int i = 0; i < rows; i++) {
+        max_row[i] = matrix[i][0];
+        for (int j = 0; j < columns; j++) {
+            if (matrix[i][j] > max_row[i]) {
+                max_row[i] = matrix[i][j];
+            }
+            if (i == 0 || matrix[i][j] < min_column[j]) {
+                min_column[j] = matrix[i][j];
+            }
+        }
+    }
+
+    // Print max array
+    for (int i = 0; i < rows; i++) {
+        if (i > 0) printf(" ");
+        printf("%d", max_row[i]);
+    }
+    printf("\n");
+
+    // Print min array
+    for (int j = 0; j < columns; j++) {
+        if (j > 0) printf(" ");
+        printf("%d", min_column[j]);
+    }
+    printf("\n");
+
+    free(max_row);
+    free(min_column);
+}
+
+void free_dynamic_matrix(int **matrix, int rows) {
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}

@@ -1,0 +1,172 @@
+УСЛОВИЕ ЗАДАЧИ :
+
+
+== Получен Quest 5. Изменить программу src/picture.c так, чтобы она отрисовывала картинку со стены комнаты в терминале при помощи заготовленных в коде массивов и матриц. Статические массивы и матрицы менять нельзя. ==
+
+
+ИСХОДНЫЙ КОД КОТОРЫЙ НУЖНО ИЗМЕНИТЬ:
+
+#define N 15
+#define M 13
+
+void transform(int *buf, int **matr, int n, int m);
+void make_picture(int **picture, int n, int m);
+void reset_picture(int **picture, int n, int m);
+
+void main()
+{
+   int picture_data[N][M];
+   int *picture[N];
+   transform(picture_data, picture, N, M);
+
+   make_picture(picture, );
+}
+
+void make_picture(int **picture, int n, int m)
+{
+   int frame_w[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+   int frame_h[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+   int tree_trunk[] = { 7, 7, 7, 7 };
+   int tree_foliage[] = { 3, 3, 3, 3 };
+   int sun_data[6][5] = { { 0, 6, 6, 6, 6 },
+                          { 0, 0, 6, 6, 6 },
+                          { 0, 0, 6, 6, 6 },
+                          { 0, 6, 0, 0, 6 },
+                          { 0, 0, 0, 0, 0 },
+                          { 0, 0, 0, 0, 0 } };
+
+   reset_picture(picture, n, m);
+
+   int length_frame_w = sizeof(frame_w) / sizeof(frame_w[0]);
+
+   for (int i = 0; i < length_frame_w; i++)
+   {
+      picture[0][i] = frame_w[i];
+   }
+}
+
+void reset_picture(int **picture, int n, int m)
+{
+   for (int i = 0; i < m; i++)
+   {
+      for (int j = 0; j < n; j++)
+      {
+         picture[i][j] = 0;
+      }
+   }
+}
+
+void transform(int *buf, int **matr, int n, int m)
+{
+   for(int i = 0; i < n; i++)
+   {
+      matr[i] = buf + i * m;
+   }
+}
+
+
+
+РЕШЕНИЕ ЗАДАЧИ:
+
+#include <stdio.h>
+
+#define N 15
+#define M 13
+
+void transform(int *buf, int **matr, int n, int m);
+void make_picture(int **picture, int n, int m);
+void reset_picture(int **picture, int n, int m);
+
+int main() // corrigido int main()
+{
+   int picture_data[N][M];
+   int *picture[N];
+   transform((int *)picture_data, picture, N, M);
+
+   make_picture(picture, N, M);
+
+   // Отрисовываем картинку в терминале
+   for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) {
+         printf("%d ", picture[i][j]);
+      }
+      printf("\n");
+   }
+
+   return 0; // добавляем return 0 для завершения программы
+}
+
+void make_picture(int **picture, int n, int m)
+{
+   int frame_w[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+   int frame_h[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+   int tree_trunk[] = { 7, 7, 7, 7 };
+   int tree_foliage[] = { 3, 3, 3, 3 };
+   int sun_data[6][5] = { { 0, 6, 6, 6, 6 },
+                          { 0, 0, 6, 6, 6 },
+                          { 0, 0, 6, 6, 6 },
+                          { 0, 6, 0, 0, 6 },
+                          { 0, 0, 0, 0, 0 },
+                          { 0, 0, 0, 0, 0 } };
+
+   reset_picture(picture, n, m);
+
+   int length_frame_w = sizeof(frame_w) / sizeof(frame_w[0]);
+   int length_frame_h = sizeof(frame_h) / sizeof(frame_h[0]);
+
+   // Отрисовываем верхнюю рамку
+   for (int i = 0; i < length_frame_w; i++) {
+      picture[0][i] = frame_w[i];
+   }
+
+   // Отрисовываем левую и правую рамку
+   for (int i = 1; i < length_frame_h; i++) {
+      picture[i][0] = 1; // Левая рамка
+      picture[i][M - 1] = 1; // Правая рамка
+   }
+
+   // Отрисовываем нижнюю рамку
+   for (int i = 0; i < length_frame_w; i++) {
+      picture[N - 1][i] = frame_w[i];
+   }
+
+   // Отрисовываем ствол дерева
+   int trunk_start_row = N - 5;
+   for (int i = 0; i < 4; i++) {
+      picture[trunk_start_row + i][M / 2] = tree_trunk[i]; // Ствол дерева
+   }
+
+   // Отрисовываем листву дерева
+   for (int i = 0; i < 4; i++) {
+      picture[trunk_start_row - 1 - i][M / 2 - 1] = tree_foliage[i]; // Листья слева
+      picture[trunk_start_row - 1 - i][M / 2 + 1] = tree_foliage[i]; // Листья справа
+   }
+
+   // Отрисовываем солнце
+   for (int i = 0; i < 6; i++) {
+      for (int j = 0; j < 5; j++) {
+         if (sun_data[i][j] != 0) {
+            picture[i + 1][j + 7] = sun_data[i][j]; // Солнце, сдвинуто вниз и вправо
+         }
+      }
+   }
+}
+
+void reset_picture(int **picture, int n, int m)
+{
+   for (int i = 0; i < m; i++)
+   {
+      for (int j = 0; j < n; j++)
+      {
+         picture[i][j] = 0;
+      }
+   }
+}
+
+void transform(int *buf, int **matr, int n, int m)
+{
+   for (int i = 0; i < n; i++)
+   {
+      matr[i] = buf + i * m;
+   }
+}

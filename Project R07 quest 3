@@ -1,0 +1,285 @@
+ 
+УСЛОВИЕ ЗАДАЧИ: Получен Quest 3. Добавить программу src/matrix.c, которая вводит и выводит целочисленные матрицы.
+Выделение памяти под матрицу необходимо реализовать в 4 видах: статический и 3 динамических. При статическом
+выделении максимальный размер матрицы не превышает 100 x 100. Для выбора способа выделения памяти в
+программе нужно реализовать меню с подпунктами 1-4. Размер матрицы (сперва количество строк, затем столбцов)
+принимается через два числа в stdin непосредственно до ее ввода. Также, необходимо чистить всю выделенную память.
+За подсказкой обратиться к папке materials. Обрати внимание на вывод матрицы: в конце каждой строчки
+не должно быть лишних пробелов. После последней строчки не должно быть символа переноса на новую строку.
+В случае любой ошибки выводить «n/a» ==
+
+
+
+
+
+
+
+ВХОДНЫЕ ДАННЫЕ :
+2
+2 2
+4 3
+9 0
+
+
+ПРИ ТАКОМ ВВОДЕ ДОЛЖЕН БЫТЬ ТАКОЙ ВЫВОД:
+4 3
+9 0
+
+У МЕНЯ УЖЕ ЕСТЬ КОД ТЫ МОЖЕШЬ ЕГО ДОПОЛНИТЬ:
+
+int input_select_method(int *method);
+int input_size(int *colums, int *rows);
+int static_input_and_output_array_elements(int *column_element, int *row_element, int input_size_colums, int input_size_rows);
+
+int main() {
+    int input_select, input_size_colums, input_size_rows, column_element, row_element;
+    input_select_method(&input_select);
+    input_size(&input_size_colums, &input_size_rows);
+    if (input_select_method == 1) {
+        static_input_and_output_array_elements(&column_element, &row_element, input_size_colums, input_size_rows);
+        } else {
+            printf("n/a");
+        }
+    return 0;
+}
+
+int input_select_method(int *method) {
+    scanf("%d", method);
+    return *method;
+}
+
+int input_size(int *input_size_colums, int *input_size_rows) {
+    scanf("%d %d", input_size_colums, input_size_rows);
+    return 0;
+}
+
+int static_input_and_output_array_elements(int *column_element, int *row_element, int input_size_colums, int input_size_rows) {
+    int row = 0;
+    int column = 0;
+    int array[input_size_colums][input_size_rows];
+    for (row = 0; row <= input_size_rows - 1; row++) {
+        scanf("%d", &row_element[row]);
+        array[row][column] = row_element[row];
+        printf("%d", row_element[row]);
+        for (column = 0; column < input_size_colums - 1; column++) {
+            scanf("%d", &column_element[column]);
+            array[row][column] = column_element[column];
+            printf("%d", column_element[column]);
+        }
+        if (row <= input_size_rows - 2) {
+            printf("\n");
+            }
+    }
+    return 0;
+}
+
+НУ ТЫ НАВЕРНО САМ ПОЙМЕШЬ ЛОГИКУ.
+
+
+
+
+РЕШЕНИЕ ЗАДАЧИ:
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 100
+
+// Function prototypes
+int input_select_method(int *method);
+int input_size(int *columns, int *rows);
+int static_input_and_output_array_elements(int input_size_columns, int input_size_rows);
+int dynamic_input_and_output_double_pointer(int input_size_columns, int input_size_rows);
+int dynamic_input_and_output_single_pointer(int input_size_columns, int input_size_rows);
+int dynamic_input_and_output_array_of_pointers(int input_size_columns, int input_size_rows);
+void free_dynamic_matrix(int **matrix, int rows);
+
+int main() {
+    int input_select, input_size_columns, input_size_rows;
+
+    input_select_method(&input_select);
+    input_size(&input_size_columns, &input_size_rows);
+
+    if (input_select == 1) {
+        static_input_and_output_array_elements(input_size_columns, input_size_rows);
+    } else if (input_select == 2) {
+        dynamic_input_and_output_double_pointer(input_size_columns, input_size_rows);
+    } else if (input_select == 3) {
+        dynamic_input_and_output_single_pointer(input_size_columns, input_size_rows);
+    } else if (input_select == 4) {
+        dynamic_input_and_output_array_of_pointers(input_size_columns, input_size_rows);
+    } else {
+        printf("n/a\n");
+    }
+
+    return 0;
+}
+
+int input_select_method(int *method) {
+    if (scanf("%d", method) != 1) {
+        printf("n/a\n");
+        exit(0);
+    }
+    return *method;
+}
+
+int input_size(int *input_size_columns, int *input_size_rows) {
+    if (scanf("%d %d", input_size_rows, input_size_columns) != 2 || *input_size_rows < 1 || *input_size_rows > MAX_SIZE || *input_size_columns < 1 || *input_size_columns > MAX_SIZE) {
+        printf("n/a\n");
+        exit(0);
+    }
+    return 0;
+}
+
+int static_input_and_output_array_elements(int input_size_columns, int input_size_rows) {
+    int array[MAX_SIZE][MAX_SIZE];
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &array[row][column]) != 1) {
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", array[row][column]);
+        }
+        if (row < input_size_rows - 1) {
+            printf("\n");
+        }
+    }
+    return 0;
+}
+
+int dynamic_input_and_output_double_pointer(int input_size_columns, int input_size_rows) {
+    int **matrix = malloc(input_size_rows * sizeof(int*));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    for (int i = 0; i < input_size_rows; i++) {
+        matrix[i] = malloc(input_size_columns * sizeof(int));
+        if (matrix[i] == NULL) {
+            free_dynamic_matrix(matrix, i);
+            printf("n/a\n");
+            return -1;
+        }
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row][column]) != 1) {
+                free_dynamic_matrix(matrix, input_size_rows);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row][column]);
+        }
+        if (row < input_size_rows - 1) {
+            printf("\n");
+        }
+    }
+
+    free_dynamic_matrix(matrix, input_size_rows);
+    return 0;
+}
+
+int dynamic_input_and_output_single_pointer(int input_size_columns, int input_size_rows) {
+    int *matrix = malloc(input_size_rows * input_size_columns * sizeof(int));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row * input_size_columns + column]) != 1) {
+                free(matrix);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row * input_size_columns + column]);
+        }
+        if (row < input_size_rows - 1) {
+            printf("\n");
+        }
+    }
+
+    free(matrix);
+    return 0;
+}
+
+int dynamic_input_and_output_array_of_pointers(int input_size_columns, int input_size_rows) {
+    int **matrix = malloc(input_size_rows * sizeof(int*));
+    if (matrix == NULL) {
+        printf("n/a\n");
+        return -1;
+    }
+
+    for (int i = 0; i < input_size_rows; i++) {
+        matrix[i] = malloc(input_size_columns * sizeof(int));
+        if (matrix[i] == NULL) {
+            free_dynamic_matrix(matrix, i);
+            printf("n/a\n");
+            return -1;
+        }
+    }
+
+    // Input matrix elements
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (scanf("%d", &matrix[row][column]) != 1) {
+                free_dynamic_matrix(matrix, input_size_rows);
+                printf("n/a\n");
+                return -1;
+            }
+        }
+    }
+
+    // Output matrix elements without extra spaces
+    for (int row = 0; row < input_size_rows; row++) {
+        for (int column = 0; column < input_size_columns; column++) {
+            if (column > 0) printf(" ");
+            printf("%d", matrix[row][column]);
+        }
+        if (row < input_size_rows - 1) {
+            printf("\n");
+        }
+    }
+
+    free_dynamic_matrix(matrix, input_size_rows);
+    return 0;
+}
+
+void free_dynamic_matrix(int **matrix, int rows) {
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
